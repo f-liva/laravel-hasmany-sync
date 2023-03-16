@@ -28,7 +28,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $that = $this;
 
-        HasMany::macro('sync', function (array $ids, $deleting = true) use ($that) {
+        HasMany::macro('sync', function (array $ids, $deleting = true, bool $syncRelateKey = true) use ($that) {
             /** @var HasMany $this */
 
             $changes = [
@@ -78,6 +78,11 @@ class ServiceProvider extends BaseServiceProvider
                     $foreignKeyName => $parentKey,
                 ])
             );
+
+            // Avoids synchronization of the key of the related model.
+            if (! $syncRelateKey) {
+                $records = array_map(fn($record) => Arr::except($record, $relatedKeyName), $records);
+            }
 
             // Do the insert or update batch
             $that->related->upsert($records, $relatedKeyName);

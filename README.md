@@ -41,10 +41,20 @@ $customer->contacts()->sync([1, 2, 3]);
 
 // Or with attributes...
 
-$customer->contacts()->sync([1 => ['name' => 'Federico'], 2 => ['name' => 'Cinzia'], 3]);
+$customer->contacts()->sync([1 => ['name' => 'Foo'], 2 => ['name' => 'Bar'], 3]);
 ```
 
 The sync method accepts the same parameters described in [Eloquent Relationships - Syncing Relations](https://laravel.com/docs/9.x/eloquent-relationships#syncing-associations)
+
+You can also synchronize the relationship without knowing the identifiers of the related records. In this case, specify in the call the `syncRelatedKey: false` parameter.
+
+```php
+$customer->contacts()->sync([1, 2, 3], syncRelatedKey: false);
+
+// Or with attributes...
+
+$customer->contacts()->sync([['name' => 'Foo'], ['name' => 'Bar'], ...]);
+```
 
 ## Contributing
 
