@@ -2,7 +2,7 @@
 
 namespace Fliva\LaravelHasManySync;
 
-use App\Models\Member;
+use ArgumentCountError;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithPivotTable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -75,7 +75,7 @@ class ServiceProvider extends BaseServiceProvider
             $changes['created'] = $that->castKeys(array_keys($create));
 
             // Build the set of records to create or update in batch
-            $records = Arr::map(array_merge($create, $update),
+            $records = ServiceProvider::map(array_merge($create, $update),
                 function ($attributes, $key) use ($relatedKeyName, $foreignKeyName, $parentKey) {
                     return array_merge($attributes, [
                         $relatedKeyName => $key,
@@ -96,5 +96,25 @@ class ServiceProvider extends BaseServiceProvider
 
             return $changes;
         });
+    }
+
+    /**
+     * Run a map over each of the items in the array.
+     *
+     * @param  array  $array
+     * @param  callable  $callback
+     * @return array
+     */
+    public static function map(array $array, callable $callback): array
+    {
+        $keys = array_keys($array);
+
+        try {
+            $items = array_map($callback, $array, $keys);
+        } catch (ArgumentCountError $e) {
+            $items = array_map($callback, $array);
+        }
+
+        return array_combine($keys, $items);
     }
 }
