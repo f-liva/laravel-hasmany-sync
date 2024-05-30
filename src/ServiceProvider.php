@@ -17,7 +17,10 @@ class ServiceProvider extends BaseServiceProvider
         castKeys as public;
     }
 
-    public Model $related;
+    /**
+     * @var Model
+     */
+    public $related;
 
     /**
      * Bootstrap any application services.
@@ -73,15 +76,19 @@ class ServiceProvider extends BaseServiceProvider
 
             // Build the set of records to create or update in batch
             $records = Arr::map(array_merge($create, $update),
-                fn($attributes, $key) => array_merge($attributes, [
-                    $relatedKeyName => $key,
-                    $foreignKeyName => $parentKey,
-                ])
+                function ($attributes, $key) use ($relatedKeyName, $foreignKeyName, $parentKey) {
+                    return array_merge($attributes, [
+                        $relatedKeyName => $key,
+                        $foreignKeyName => $parentKey,
+                    ]);
+                }
             );
 
             // Avoids synchronization of the key of the related model.
             if (! $syncRelateKey) {
-                $records = array_map(fn($record) => Arr::except($record, $relatedKeyName), $records);
+                $records = array_map(function ($record) use ($relatedKeyName) {
+                    return Arr::except($record, $relatedKeyName);
+                }, $records);
             }
 
             // Do the insert or update batch
