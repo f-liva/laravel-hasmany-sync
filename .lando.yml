@@ -1,0 +1,7 @@
+name: laravel-hasmany-sync
+services:
+  php:
+    type: php:7.1
+tooling:
+  composer:
+    service: php
